@@ -1,0 +1,36 @@
+From 58743371caa7ab878347f9b6677b8999e770969a Mon Sep 17 00:00:00 2001
+From: Justin Schneck <jschneck@mac.com>
+Date: Thu, 19 Aug 2021 15:32:42 -0400
+Subject: [PATCH] Disable stack protection explicitly
+
+Explicitly disable stack protection via the "-fno-stack-protector"
+compiler option when the ENABLE_STACK_PROTECTOR build option is
+set to "none" (the default).
+
+This allows the build to complete without link errors on systems where
+stack protection is enabled by default in the compiler.
+
+Change-Id: I0a676aa672815235894fb2cd05fa2b196fabb972
+Signed-off-by: Simon South <simon@simonsouth.net>
+---
+ lib/stack_protector/stack_protector.mk | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/lib/stack_protector/stack_protector.mk b/lib/stack_protector/stack_protector.mk
+index 94e804be9..b5aba1528 100644
+--- a/lib/stack_protector/stack_protector.mk
++++ b/lib/stack_protector/stack_protector.mk
+@@ -11,7 +11,9 @@ ifeq (${ENABLE_STACK_PROTECTOR},0)
+   ENABLE_STACK_PROTECTOR := none
+ endif
+ 
+-ifneq (${ENABLE_STACK_PROTECTOR},none)
++ifeq (${ENABLE_STACK_PROTECTOR},none)
++  TF_CFLAGS            +=      -fno-stack-protector
++else
+   STACK_PROTECTOR_ENABLED := 1
+   BL_COMMON_SOURCES	+=	lib/stack_protector/stack_protector.c	\
+ 				lib/stack_protector/${ARCH}/asm_stack_protector.S
+-- 
+2.25.1
+
